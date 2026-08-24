@@ -1,0 +1,258 @@
+---
+import { getCollection } from 'astro:content';
+import BaseHead from '../../components/BaseHead.astro';
+import Footer from '../../components/Footer.astro';
+import Header from '../../components/Header.astro';
+import { SITE_DESCRIPTION, SITE_TITLE } from '../../consts';
+
+const allPosts = (await getCollection('blog')).sort(
+	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+);
+
+const groupedPosts = allPosts.reduce((acc, post) => {
+	const year = post.data.pubDate.getFullYear().toString();
+	if (!acc[year]) {
+		acc[year] = [];
+	}
+	acc[year].push(post);
+	return acc;
+}, {} as Record<string, typeof allPosts>);
+
+const sortedYears = Object.keys(groupedPosts).sort((a, b) => parseInt(b) - parseInt(a));
+
+const formatDate = (date: Date) => {
+	const month = String(date.getMonth() + 1).padStart(2, '0');
+	const day = String(date.getDate()).padStart(2, '0');
+	return `${month}-${day}`;
+};
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+		<style>
+			main {
+				max-width: 720px;
+				margin: 0 auto;
+				padding: 2rem 1.25rem 4rem;
+			}
+			.archive-container {
+				line-height: 1.8;
+			}
+			.year-section {
+				margin-bottom: 2rem;
+			}
+			.year-title {
+				font-size: 1.25rem;
+				font-weight: 700;
+				margin: 0 0 1rem 0;
+				color: var(--accent);
+				display: flex;
+				align-items: center;
+				gap: 0.75rem;
+			}
+			.year-title::before {
+				content: '';
+				width: 4px;
+				height: 1.25rem;
+				background: linear-gradient(180deg, var(--accent), #8b5cf6);
+				border-radius: 2px;
+			}
+			.year-count {
+				font-size: 0.8rem;
+				font-weight: 400;
+				color: var(--text-muted);
+				background: var(--bg-secondary);
+				padding: 0.25rem 0.5rem;
+				border-radius: 9999px;
+			}
+			.post-list {
+				list-style-type: none;
+				margin: 0;
+				padding: 0;
+			}
+			.post-item {
+				padding: 0.375rem 0;
+				border-radius: 0.375rem;
+				transition: background 0.2s ease;
+			}
+			.post-item:hover {
+				background: rgba(249, 115, 22, 0.08);
+			}
+			.post-link {
+				display: flex;
+				align-items: baseline;
+				gap: 1.25rem;
+				text-decoration: none;
+				color: inherit;
+				padding: 0.375rem 0.5rem;
+				border-radius: 0.375rem;
+				transition: color 0.2s ease;
+			}
+			.post-link:hover {
+				color: var(--accent);
+			}
+			.post-date {
+				font-size: 0.85rem;
+				color: var(--text-muted);
+				min-width: 80px;
+				flex-shrink: 0;
+			}
+			.post-title {
+				font-size: 1rem;
+				font-weight: 500;
+				margin: 0;
+				color: var(--text-primary);
+				flex: 1;
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
+			}
+			.post-tags {
+				display: flex;
+				gap: 0.375rem;
+				flex-wrap: wrap;
+				flex-shrink: 0;
+			}
+			.post-tag {
+				font-size: 0.7rem;
+				color: var(--text-muted);
+				padding: 0.125rem 0.375rem;
+				background: var(--bg-secondary);
+				border-radius: 0.25rem;
+			}
+			.load-more {
+				display: flex;
+				justify-content: center;
+				margin-top: 2rem;
+				padding-top: 1.5rem;
+				border-top: 1px solid var(--border-color);
+			}
+			.load-more-btn {
+				display: inline-flex;
+				align-items: center;
+				gap: 0.5rem;
+				padding: 0.75rem 1.5rem;
+				background: var(--bg-secondary);
+				border: 1px solid var(--border-color);
+				border-radius: 8px;
+				color: var(--text-primary);
+				font-size: 0.9rem;
+				font-weight: 500;
+				cursor: pointer;
+				transition: all 0.2s ease;
+			}
+			.load-more-btn:hover {
+				background: var(--accent);
+				color: white;
+				border-color: var(--accent);
+			}
+			.load-more-btn:disabled {
+				opacity: 0.5;
+				cursor: not-allowed;
+			}
+			.loading-spinner {
+				width: 16px;
+				height: 16px;
+				border: 2px solid currentColor;
+				border-top-color: transparent;
+				border-radius: 50%;
+				animation: spin 0.8s linear infinite;
+			}
+			@keyframes spin {
+				to { transform: rotate(360deg); }
+			}
+			@media (max-width: 720px) {
+				main {
+					width: 100%;
+					padding: 0 1rem;
+				}
+				.post-link {
+					flex-direction: column;
+					gap: 0.25rem;
+					align-items: flex-start;
+				}
+				.post-date {
+					min-width: auto;
+				}
+				.post-title {
+					white-space: normal;
+					overflow: visible;
+					text-overflow: unset;
+				}
+			}
+			html.dark .year-title {
+				color: var(--accent);
+			}
+			html.dark .year-title::before {
+				background: linear-gradient(180deg, var(--accent), #FDBA74);
+			}
+			html.dark .year-count {
+				background: var(--bg-secondary);
+				color: var(--text-muted);
+			}
+			html.dark .post-link:hover {
+				color: var(--accent);
+			}
+			html.dark .post-item:hover {
+				background: rgba(251, 146, 60, 0.15);
+			}
+			html.dark .post-title {
+				color: var(--text-primary);
+			}
+			html.dark .post-tag {
+				background: var(--bg-secondary);
+			}
+			html.dark .load-more-btn {
+				background: var(--bg-secondary);
+				border-color: var(--border-color);
+				color: var(--text-primary);
+			}
+			html.dark .load-more-btn:hover {
+				background: var(--accent);
+				color: white;
+			}
+		</style>
+	</head>
+	<body>
+		<Header />
+		<main>
+			<section class="archive-container">
+				{
+					sortedYears.map((year) => (
+						<div class="year-section" id={`year-${year}`} key={year}>
+							<h2 class="year-title">
+								{year}
+								<span class="year-count">{groupedPosts[year].length} posts</span>
+							</h2>
+							<ul class="post-list">
+								{
+									groupedPosts[year].map((post) => (
+										<li class="post-item" key={post.id}>
+											<a href={`/blog/${post.id}/`} class="post-link">
+												<span class="post-date">{formatDate(post.data.pubDate)}</span>
+												<h3 class="post-title">{post.data.title}</h3>
+												{post.data.tags && post.data.tags.length > 0 && (
+													<div class="post-tags">
+														{post.data.tags.slice(0, 3).map((tag) => (
+															<span class="post-tag">#{tag}</span>
+														))}
+														{post.data.tags.length > 3 && (
+															<span class="post-tag">...{post.data.tags.length - 3}</span>
+														)}
+													</div>
+												)}
+											</a>
+										</li>
+									))
+								}
+							</ul>
+						</div>
+					))
+				}
+			</section>
+		</main>
+		<Footer />
+	</body>
+</html>

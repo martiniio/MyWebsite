@@ -1,0 +1,183 @@
+---
+import { getCollection } from 'astro:content';
+import BaseHead from '../components/BaseHead.astro';
+import Footer from '../components/Footer.astro';
+import Header from '../components/Header.astro';
+import { marked } from 'marked';
+
+const aboutEntries = await getCollection('about');
+const aboutContent = aboutEntries[0];
+const renderedContent = aboutContent ? marked(aboutContent.body) : '';
+---
+
+<!doctype html>
+<html lang="zh-CN">
+	<head>
+		<BaseHead title="About" description="Learn more about me" />
+		<style>
+			.about-section {
+				max-width: 640px;
+				margin: 0 auto;
+			}
+			.about-avatar {
+				width: 120px;
+				height: 120px;
+				border-radius: 50%;
+				object-fit: cover;
+				margin: 0 auto 1.5rem;
+				display: block;
+				border: 3px solid transparent;
+				background: linear-gradient(135deg, var(--accent), #8b5cf6) padding-box,
+							linear-gradient(135deg, var(--accent), #8b5cf6) border-box;
+				box-shadow: 0 8px 30px rgba(59, 130, 246, 0.2);
+			}
+			.about-title {
+				text-align: center;
+				font-size: 1.75rem;
+				font-weight: 700;
+				color: var(--text-primary);
+				margin-bottom: 0.25rem;
+				letter-spacing: -0.02em;
+			}
+			.about-subtitle {
+				text-align: center;
+				font-size: 1rem;
+				color: var(--accent);
+				font-weight: 500;
+				margin-bottom: 1.5rem;
+			}
+			.about-content {
+				color: var(--text-secondary);
+				line-height: 1.7;
+			}
+			.about-content h2 {
+				font-size: 1.125rem;
+				font-weight: 700;
+				color: var(--text-primary);
+				margin: 2rem 0 1rem;
+				padding-top: 1.5rem;
+				border-top: 1px solid var(--border-color);
+				display: flex;
+				align-items: center;
+				gap: 0.5rem;
+			}
+			.about-content h2::before {
+				content: '';
+				width: 3px;
+				height: 1.125rem;
+				background: linear-gradient(180deg, var(--accent), #8b5cf6);
+				border-radius: 2px;
+			}
+			.about-content h2:first-of-type {
+				padding-top: 0;
+				border-top: none;
+				margin-top: 2rem;
+			}
+			.about-content p {
+				margin-bottom: 0.75rem;
+			}
+			.about-content ul {
+				list-style: none;
+				margin: 0;
+				padding: 0;
+				display: flex;
+				flex-wrap: wrap;
+				gap: 0.75rem;
+				justify-content: center;
+			}
+			.about-content li {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				width: 72px;
+				height: 72px;
+				background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(139, 92, 246, 0.15));
+				border-radius: 50%;
+				font-size: 0.75rem;
+				font-weight: 600;
+				color: var(--accent);
+				text-align: center;
+				transition: all 0.25s ease;
+				border: 1.5px solid rgba(59, 130, 246, 0.3);
+			}
+			.about-content li:hover {
+				transform: translateY(-4px) scale(1.1);
+				box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+				border-color: var(--accent);
+				background: linear-gradient(135deg, rgba(59, 130, 246, 0.25), rgba(139, 92, 246, 0.25));
+			}
+			.about-content a {
+				display: flex;
+				align-items: center;
+				gap: 0.75rem;
+				color: var(--text-secondary);
+				text-decoration: none;
+				padding: 0.75rem 1rem;
+				border-radius: 0.75rem;
+				background: var(--bg-secondary);
+				transition: all 0.2s ease;
+				margin-bottom: 0.75rem;
+			}
+			.about-content a:hover {
+				color: var(--accent);
+				background: rgba(59, 130, 246, 0.08);
+				transform: translateY(-2px);
+				text-decoration: none;
+			}
+
+
+			html.dark .about-title {
+				color: var(--text-primary);
+			}
+			html.dark .about-subtitle {
+				color: var(--accent-light);
+			}
+			html.dark .about-content {
+				color: var(--text-secondary);
+			}
+			html.dark .about-content h2 {
+				color: var(--text-primary);
+				border-top-color: var(--border-color);
+			}
+			html.dark .about-content li {
+				background: linear-gradient(135deg, rgba(96, 165, 250, 0.15), rgba(139, 92, 246, 0.15));
+				color: var(--accent-light);
+				border-color: rgba(96, 165, 250, 0.3);
+			}
+			html.dark .about-content li:hover {
+				box-shadow: 0 8px 25px rgba(96, 165, 250, 0.4);
+				border-color: var(--accent-light);
+				background: linear-gradient(135deg, rgba(96, 165, 250, 0.25), rgba(139, 92, 246, 0.25));
+			}
+			html.dark .about-content a {
+				color: var(--text-secondary);
+				background: var(--bg-secondary);
+			}
+			html.dark .about-content a:hover {
+				color: var(--accent-light);
+				background: rgba(96, 165, 250, 0.1);
+			}
+		</style>
+	</head>
+	<body>
+		<Header />
+		<main>
+			<div class="about-section">
+				{aboutContent && (
+					<>
+						<img 
+							class="about-avatar" 
+							src="/avatar.svg"
+							alt="Avatar"
+						/>
+						<h1 class="about-title">{aboutContent.data.name}</h1>
+						<p class="about-subtitle">{aboutContent.data.title}</p>
+						
+						<article class="about-content" set:html={renderedContent} />
+					</>
+				)}
+			</div>
+		</main>
+		<Footer />
+	</body>
+</html>

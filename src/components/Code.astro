@@ -1,0 +1,87 @@
+---
+import { getRenderer } from './_expressive-code/renderer'
+import { getPageData } from './_expressive-code/page-data'
+
+interface Props {
+  code: string
+  lang?: string
+  meta?: string
+  locale?: string
+  className?: string
+  [key: string]: unknown
+}
+
+const props = Astro.props as Props
+
+if (!props.code || !props.code.trim()) {
+  throw new Error('Missing code to render. The `code` prop must be set to a non-empty string.')
+}
+
+const pageData = getPageData(Astro.request)
+const groupIndex = ++pageData.blockGroupIndex
+const renderer = await getRenderer()
+
+const tabWidth = renderer.tabWidth ?? 2
+let code = props.code
+if (tabWidth > 0) {
+  code = code.replace(/\t/g, ' '.repeat(tabWidth))
+}
+
+const input = {
+  code,
+  language: props.lang || '',
+  meta: props.meta || '',
+  locale: props.locale,
+  parentDocument: {
+    sourceFilePath: Astro.request.url,
+    positionInDocument: { groupIndex },
+  },
+  props: Object.fromEntries(
+    Object.entries(props).filter(([key]) => !['code', 'lang', 'meta', 'locale', 'className'].includes(key))
+  ),
+}
+
+if (!input.locale && renderer.getBlockLocale) {
+  const file = {
+    url: Astro.url,
+    path: '',
+    cwd: '/',
+    data: {},
+  }
+  input.locale = await renderer.getBlockLocale({ input, file })
+}
+
+const { renderedGroupAst, styles } = await renderer.ec.render(input)
+
+let html = ''
+if (renderedGroupAst) {
+  const { toHtml, addClassName } = await import('rehype-expressive-code/hast')
+  
+  if (props.className && renderedGroupAst.type === 'element') {
+    props.className.split(' ').forEach((cls) => addClassName(renderedGroupAst, cls))
+  }
+
+  const stylesToPrepend: string[] = []
+  for (const style of styles) {
+    stylesToPrepend.push(style)
+  }
+
+  if (stylesToPrepend.length && renderedGroupAst.type === 'element') {
+    const firstChild = renderedGroupAst.children.length > 0 ? renderedGroupAst.children[0] : undefined
+    const firstChildIsStyle = firstChild?.type === 'element' && ['style', 'link'].includes(firstChild?.tagName)
+    const insertIndex = firstChildIsStyle ? 1 : 0
+    
+    const inlineStyleElement = {
+      type: 'element' as const,
+      tagName: 'style',
+      properties: {},
+      children: [{ type: 'text' as const, value: stylesToPrepend.join('') }],
+    }
+    
+    renderedGroupAst.children.splice(insertIndex, 0, inlineStyleElement)
+  }
+
+  html = toHtml(renderedGroupAst)
+}
+---
+<Fragment set:html={html} />

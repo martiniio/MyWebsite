@@ -1,0 +1,275 @@
+---
+import { getCollection } from 'astro:content';
+import BaseHead from '../components/BaseHead.astro';
+import Footer from '../components/Footer.astro';
+import Header from '../components/Header.astro';
+import { SITE_DESCRIPTION, SITE_TITLE, AUTHOR_NAME, AUTHOR_TITLE, AUTHOR_DESCRIPTION } from '../consts';
+
+const allPosts = (await getCollection('blog')).sort(
+	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+);
+
+const recentPosts = allPosts.slice(0, 4);
+
+const formatDate = (date: Date) => {
+	const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+	const month = months[date.getMonth()];
+	const day = date.getDate();
+	return `${month} ${day}`;
+};
+---
+
+<!doctype html>
+<html lang="zh-CN">
+	<head>
+		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+		<style>
+			:global(body) {
+				min-height: 100vh;
+			}
+
+			main {
+				max-width: 640px;
+				margin: 0 auto;
+				padding: 0 1.5rem;
+			}
+
+			.intro-section {
+				padding: 2.5rem 0 2rem;
+				display: flex;
+				gap: 1.5rem;
+				align-items: center;
+			}
+
+			.avatar-wrapper {
+				flex-shrink: 0;
+			}
+
+			.intro-avatar {
+				width: 96px;
+				height: 96px;
+				border-radius: 50%;
+				object-fit: cover;
+				border: 3px solid transparent;
+				background: linear-gradient(135deg, var(--accent), #8b5cf6) padding-box,
+							linear-gradient(135deg, var(--accent), #8b5cf6) border-box;
+				box-shadow: 0 8px 30px rgba(59, 130, 246, 0.2);
+			}
+
+			.intro-content {
+				flex: 1;
+				min-width: 0;
+			}
+
+			.intro-title {
+				font-size: 1.75rem;
+				font-weight: 700;
+				color: var(--text-primary);
+				margin: 0 0 0.375rem 0;
+				letter-spacing: -0.02em;
+			}
+
+			.intro-subtitle {
+				font-size: 1rem;
+				color: var(--accent);
+				font-weight: 500;
+				margin: 0 0 0.75rem 0;
+			}
+
+			.intro-description {
+				font-size: 0.9rem;
+				color: var(--text-muted);
+				line-height: 1.7;
+				margin: 0;
+			}
+
+			.posts-section {
+				margin-top: 1.5rem;
+				padding-bottom: 1.5rem;
+			}
+
+			.section-header {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				margin-bottom: 1rem;
+				padding-top: 1.5rem;
+				border-top: 1px solid var(--border-color);
+			}
+
+			.section-title {
+				font-size: 1.125rem;
+				font-weight: 700;
+				color: var(--text-primary);
+				margin: 0;
+				position: relative;
+				padding-left: calc(3px + 0.5rem);
+			}
+
+			.section-title::before {
+				content: '';
+				width: 3px;
+				height: 1.125rem;
+				background: linear-gradient(180deg, var(--accent), #8b5cf6);
+				border-radius: 2px;
+				position: absolute;
+				left: 0;
+				top: 50%;
+				transform: translateY(-50%);
+			}
+
+			.post-list {
+				list-style: none;
+				margin: 0;
+				padding-left: calc(3px + 0.5rem);
+				display: flex;
+				flex-direction: column;
+				gap: 0.2rem;
+			}
+
+			.section-link {
+				font-size: 0.875rem;
+				color: var(--accent);
+				text-decoration: none;
+				font-weight: 600;
+				display: inline-flex;
+				align-items: center;
+				gap: 0.5rem;
+				padding: 0.5rem 1.25rem;
+				border-radius: 0.5rem;
+				background: rgba(59, 130, 246, 0.1);
+				transition: all 0.2s ease;
+			}
+			.section-link:hover {
+				background: var(--accent);
+				color: white;
+				transform: translateY(-2px);
+				text-decoration: none;
+			}
+
+
+
+			.post-item {
+				padding: 1rem 0;
+				border-bottom: 1px solid rgba(229, 231, 235, 0.5);
+				transition: background-color 0.15s ease;
+			}
+
+			.post-item:last-child {
+				border-bottom: none;
+			}
+
+			.post-item:hover {
+				background-color: rgba(249, 115, 22, 0.06);
+			}
+
+			.post-link {
+				display: flex;
+				align-items: center;
+				gap: 1.5rem;
+				text-decoration: none;
+				padding-left: 0;
+			}
+
+			.post-date {
+				font-size: 0.8rem;
+				color: var(--text-muted);
+				min-width: 70px;
+				flex-shrink: 0;
+				text-align: left;
+				font-weight: 500;
+				letter-spacing: 0.02em;
+			}
+
+			.post-title {
+				font-size: 0.95rem;
+				font-weight: 500;
+				color: var(--text-primary);
+				margin: 0;
+				line-height: 1.5;
+				transition: color 0.15s ease;
+				text-align: left;
+				flex: 1;
+			}
+
+			.post-link:hover .post-title {
+				color: var(--accent);
+			}
+
+			@media (max-width: 640px) {
+				.intro-section {
+					flex-direction: column;
+					text-align: center;
+					padding: 1.25rem 0 0.75rem;
+				}
+
+				.intro-avatar {
+					width: 56px;
+					height: 56px;
+				}
+
+				.intro-links {
+					justify-content: center;
+				}
+			}
+
+			html.dark .post-item {
+				border-bottom-color: rgba(255, 255, 255, 0.06);
+			}
+
+			html.dark .post-item:hover {
+				background-color: rgba(251, 146, 60, 0.12);
+			}
+
+			html.dark .section-link {
+				background: rgba(251, 146, 60, 0.15);
+			}
+
+			html.dark .section-link:hover {
+				background: var(--accent);
+				color: #0f172a;
+			}
+
+			html.dark .post-link:hover .post-title {
+				color: var(--accent);
+			}
+		</style>
+	</head>
+	<body>
+		<Header />
+		<main>
+			<section class="intro-section">
+				<div class="avatar-wrapper">
+					<img
+						class="intro-avatar"
+						src="/avatar.svg"
+						alt="Avatar"
+					/>
+				</div>
+				<div class="intro-content">
+					<h1 class="intro-title">Hello, I'm {AUTHOR_NAME}</h1>
+					<p class="intro-subtitle">{AUTHOR_TITLE}</p>
+					<p class="intro-description">{AUTHOR_DESCRIPTION}</p>
+				</div>
+			</section>
+
+			<section class="posts-section">
+				<div class="section-header">
+					<h2 class="section-title">Latest Posts</h2>
+					<a href="/blog" class="section-link">View All →</a>
+				</div>
+				<ul class="post-list">
+					{recentPosts.map((post) => (
+						<li class="post-item">
+							<a href={`/blog/${post.id}/`} class="post-link">
+								<span class="post-date">{formatDate(post.data.pubDate)}</span>
+								<h3 class="post-title">{post.data.title}</h3>
+							</a>
+						</li>
+					))}
+				</ul>
+			</section>
+		</main>
+		<Footer />
+	</body>
+</html>

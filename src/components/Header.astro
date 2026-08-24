@@ -1,0 +1,320 @@
+---
+import { SITE_TITLE } from '../consts';
+import HeaderLink from './HeaderLink.astro';
+import SearchModal from './SearchModal.astro';
+
+const isDark = 'dark';
+---
+
+<script is:inline>
+	(function() {
+		const STORAGE_KEY = 'astro-theme';
+		let theme = null;
+
+		if (typeof localStorage !== 'undefined') {
+			theme = localStorage.getItem(STORAGE_KEY);
+		}
+
+		function isNightTime() {
+			const hour = new Date().getHours();
+			return hour >= 18 || hour < 6;
+		}
+
+		if (!theme || theme === 'auto') {
+			if (isNightTime()) {
+				document.documentElement.classList.add('dark');
+			}
+		} else if (theme === 'dark') {
+			document.documentElement.classList.add('dark');
+		}
+	})();
+</script>
+
+<header>
+	<nav>
+		<div class="nav-left">
+			<h2><a href="/">{SITE_TITLE}</a></h2>
+		</div>
+		
+		<div class="nav-center">
+			<HeaderLink href="/">Home</HeaderLink>
+			<HeaderLink href="/blog">Blog</HeaderLink>
+			<HeaderLink href="/tags">Tags</HeaderLink>
+			<HeaderLink href="/about">About</HeaderLink>
+		</div>
+		
+		<div class="nav-right">
+			<SearchModal />
+			<button id="theme-toggle" class="nav-btn" title="Toggle theme" aria-label="Toggle theme">
+				<svg id="theme-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+					<circle cx="12" cy="12" r="5"/>
+					<line x1="12" y1="1" x2="12" y2="3"/>
+					<line x1="12" y1="21" x2="12" y2="23"/>
+					<line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+					<line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+					<line x1="1" y1="12" x2="3" y2="12"/>
+					<line x1="21" y1="12" x2="23" y2="12"/>
+					<line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+					<line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+				</svg>
+			</button>
+			<div id="theme-menu" class="theme-menu">
+				<div class="theme-option" data-theme="light" title="Light">
+					<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+						<circle cx="12" cy="12" r="5"/>
+						<line x1="12" y1="1" x2="12" y2="3"/>
+						<line x1="12" y1="21" x2="12" y2="23"/>
+						<line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+						<line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+						<line x1="1" y1="12" x2="3" y2="12"/>
+						<line x1="21" y1="12" x2="23" y2="12"/>
+						<line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+						<line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+					</svg>
+				</div>
+				<div class="theme-option" data-theme="dark" title="Dark">
+					<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+						<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+					</svg>
+				</div>
+				<div class="theme-option" data-theme="auto" title="Auto">
+					<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+						<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+						<path d="M3 3v5h5"/>
+					</svg>
+				</div>
+			</div>
+		</div>
+	</nav>
+</header>
+<script>
+	const themeToggle = document.getElementById('theme-toggle');
+	const themeIcon = document.getElementById('theme-icon');
+	const themeMenu = document.getElementById('theme-menu');
+	
+	const STORAGE_KEY = 'astro-theme';
+	const DARK_ICON = `<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>`;
+	const LIGHT_ICON = `<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>`;
+	const AUTO_ICON = `<circle cx="12" cy="12" r="3"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>`;
+
+	function isNightTime() {
+		const hour = new Date().getHours();
+		return hour >= 18 || hour < 6;
+	}
+
+	function getSystemTheme() {
+		return isNightTime() ? 'dark' : 'light';
+	}
+	
+	function getPreferredTheme() {
+		if (typeof localStorage !== 'undefined') {
+			const stored = localStorage.getItem(STORAGE_KEY);
+			if (stored) return stored;
+		}
+		return 'auto';
+	}
+	
+	function applyTheme() {
+		const storedTheme = getPreferredTheme();
+		let activeTheme;
+		
+		if (storedTheme === 'auto') {
+			activeTheme = getSystemTheme();
+			themeIcon.innerHTML = activeTheme === 'dark' ? DARK_ICON : LIGHT_ICON;
+		} else if (storedTheme === 'dark') {
+			activeTheme = 'dark';
+			themeIcon.innerHTML = DARK_ICON;
+		} else {
+			activeTheme = 'light';
+			themeIcon.innerHTML = LIGHT_ICON;
+		}
+		
+		const html = document.documentElement;
+		if (activeTheme === 'dark') {
+			html.classList.add('dark');
+		} else {
+			html.classList.remove('dark');
+		}
+		
+		document.dispatchEvent(new CustomEvent('ecThemeChange'));
+	}
+	
+	function setTheme(theme) {
+		if (typeof localStorage !== 'undefined') {
+			localStorage.setItem(STORAGE_KEY, theme);
+		}
+		applyTheme();
+		hideThemeMenu();
+		
+		const event = new Event('themeChange');
+		document.dispatchEvent(event);
+	}
+	
+	function toggleThemeMenu() {
+		themeMenu.classList.toggle('show');
+	}
+	
+	function hideThemeMenu() {
+		themeMenu.classList.remove('show');
+	}
+	
+	function selectTheme(event) {
+		const target = event.target.closest('.theme-option');
+		if (target) {
+			const theme = target.dataset.theme;
+			setTheme(theme);
+		}
+	}
+	
+	function handleTimeBasedChange() {
+		if (getPreferredTheme() === 'auto') {
+			applyTheme();
+		}
+	}
+	
+	applyTheme();
+	
+	themeToggle?.addEventListener('click', toggleThemeMenu);
+	themeMenu?.addEventListener('click', selectTheme);
+	
+	document.addEventListener('click', (event) => {
+		if (!themeToggle?.contains(event.target) && !themeMenu?.contains(event.target)) {
+			hideThemeMenu();
+		}
+	});
+	
+	setInterval(handleTimeBasedChange, 60000);
+</script>
+<style>
+	header {
+		position: sticky;
+		top: 0;
+		z-index: 100;
+		width: 100%;
+		border-bottom: 1px solid var(--border-color);
+		backdrop-filter: blur(8px);
+		background-color: rgba(255, 255, 255, 0.95);
+	}
+	
+	html.dark header {
+		background-color: rgba(24, 24, 27, 0.95);
+	}
+	
+	h2 {
+		margin: 0;
+		font-size: 1.125rem;
+		font-weight: 700;
+	}
+
+	h2 a,
+	h2 a.active {
+		text-decoration: none;
+		color: var(--text-primary);
+		font-weight: 700;
+	}
+	
+	nav {
+		max-width: 1200px;
+		margin: 0 auto;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		height: 64px;
+		padding: 0 1rem;
+	}
+	
+	.nav-left {
+		flex-shrink: 0;
+	}
+	
+	.nav-center {
+		display: flex;
+		gap: 2rem;
+	}
+	
+	.nav-right {
+		display: flex;
+		gap: 0.5rem;
+		position: relative;
+	}
+	
+	.nav-btn {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 36px;
+		height: 36px;
+		border: none;
+		background: none;
+		border-radius: 0.5rem;
+		color: var(--text-muted);
+		cursor: pointer;
+		transition: all 0.2s ease;
+	}
+	
+	.nav-btn:hover {
+		background-color: var(--bg-secondary);
+		color: var(--accent);
+	}
+	
+	.nav-center a {
+		padding: 0.5rem 0;
+		color: var(--text-secondary);
+		font-size: 0.875rem;
+		font-weight: 500;
+		text-decoration: none;
+		border-bottom: 2px solid transparent;
+		transition: all 0.2s ease;
+	}
+	
+	.nav-center a:hover {
+		color: var(--accent);
+	}
+	
+	.nav-center a.active {
+		color: var(--accent);
+		border-bottom-color: var(--accent);
+	}
+
+	.theme-menu {
+		position: absolute;
+		top: calc(100% + 8px);
+		right: 0;
+		background-color: var(--bg-primary);
+		border: 1px solid var(--border-color);
+		border-radius: 0.75rem;
+		padding: 0.25rem;
+		min-width: auto;
+		box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+		opacity: 0;
+		visibility: hidden;
+		transform: translateY(-8px);
+		transition: all 0.2s ease;
+		z-index: 200;
+	}
+
+	.theme-menu.show {
+		opacity: 1;
+		visibility: visible;
+		transform: translateY(0);
+	}
+
+	.theme-option {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 36px;
+		height: 36px;
+		padding: 0.25rem;
+		border-radius: 0.5rem;
+		cursor: pointer;
+		color: var(--text-secondary);
+		font-size: 0.875rem;
+		transition: all 0.15s ease;
+	}
+
+	.theme-option:hover {
+		background-color: var(--bg-secondary);
+		color: var(--text-primary);
+	}
+</style>

@@ -1,0 +1,33 @@
+---
+title: 'Using MDX'
+description: 'Lorem ipsum dolor sit amet'
+pubDate: 'Jun 01 2024'
+heroImage: 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=1200&h=600&fit=crop'
+---
+
+This theme comes with the [@astrojs/mdx](https://docs.astro.build/en/guides/integrations-guide/mdx/) integration installed and configured in your `astro.config.mjs` config file. If you prefer not to use MDX, you can disable support by removing the integration from your config file.
+
+## Why MDX?
+
+MDX is a powerful way to write content in Markdown. It allows you to use JSX in your Markdown content, which means you can import and use React components, Vue components, or any other component.
+
+## MDX Features
+
+With MDX, you can:
+
+- Write Markdown as usual
+- Import and use components
+- Use JSX expressions
+- Export metadata from files
+
+## Example
+
+```mdx
+import MyComponent from './MyComponent';
+
+# Hello World
+
+This is **bold** and this is _italic_.
+
+<MyComponent />
+```

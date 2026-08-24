@@ -1,0 +1,5 @@
+{
+  "site": "dist",
+  "bundle_dir": "pagefind",
+  "force_language": "zh-cn"
+}
