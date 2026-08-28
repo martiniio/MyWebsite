@@ -11,6 +11,16 @@ const allPosts = (await getCollection('blog')).sort(
 
 const recentPosts = allPosts.slice(0, 4);
 
+// ====== TAG CLOUD LOGIC ======
+const tagCounts = new Map();
+allPosts.forEach((post) => {
+	(post.data.tags || []).forEach((tag) => {
+		const count = tagCounts.get(tag) || 0;
+		tagCounts.set(tag, count + 1);
+	});
+});
+const allTags = Array.from(tagCounts.entries()).sort((a, b) => a[0].localeCompare(b[0]));
+
 const formatDate = (date: Date) => {
 	const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 	const month = months[date.getMonth()];
@@ -83,8 +93,54 @@ const formatDate = (date: Date) => {
 				margin: 0;
 			}
 
+			/* ====== TAG CLOUD STYLES ====== */
+			.tags-section {
+				margin-top: 0.5rem;
+				padding-bottom: 0.5rem;
+				border-bottom: 1px solid var(--border-color);
+			}
+
+			.tag-cloud {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 0.5rem;
+				align-items: center;
+				padding: 0.5rem 0;
+			}
+
+			.tag-label {
+				font-size: 0.85rem;
+				font-weight: 500;
+				color: var(--text-muted);
+				margin-right: 0.25rem;
+			}
+
+			.tag-badge {
+				display: inline-block;
+				padding: 0.2rem 0.8rem;
+				background: var(--bg-secondary);
+				border-radius: 9999px;
+				text-decoration: none;
+				color: var(--text-secondary);
+				font-size: 0.8rem;
+				transition: all 0.2s ease;
+			}
+			.tag-badge:hover {
+				background: var(--accent);
+				color: #fff;
+				text-decoration: none;
+			}
+			.tag-badge .count {
+				color: var(--text-muted);
+				font-size: 0.65rem;
+			}
+			.tag-badge:hover .count {
+				color: rgba(255,255,255,0.7);
+			}
+
+			/* ====== POSTS STYLES ====== */
 			.posts-section {
-				margin-top: 1.5rem;
+				margin-top: 0.5rem;
 				padding-bottom: 1.5rem;
 			}
 
@@ -146,8 +202,6 @@ const formatDate = (date: Date) => {
 				transform: translateY(-2px);
 				text-decoration: none;
 			}
-
-
 
 			.post-item {
 				padding: 1rem 0;
@@ -238,11 +292,12 @@ const formatDate = (date: Date) => {
 	<body>
 		<Header />
 		<main>
+			<!-- INTRO SECTION -->
 			<section class="intro-section">
 				<div class="avatar-wrapper">
 					<img
 						class="intro-avatar"
-						src="/avatar.svg"
+						src="/avatar.jpg"
 						alt="Avatar"
 					/>
 				</div>
@@ -253,6 +308,8 @@ const formatDate = (date: Date) => {
 				</div>
 			</section>
 
+
+			<!-- RECENT POSTS SECTION -->
 			<section class="posts-section">
 				<div class="section-header">
 					<h2 class="section-title">Latest Posts</h2>

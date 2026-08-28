@@ -13,7 +13,7 @@
 	--border-color: #E4E4E7;
 	--codeblock-bg: #F5F5F5;
 	--codeblock-topbar-bg: #E4E4E7;
-	--body-font-size: 15px;
+	--body-font-size: 14px;
 }
 
 html.dark {
@@ -115,3 +115,4 @@ hr {
 		padding: 2rem 1rem 3rem;
 	}
 }
+

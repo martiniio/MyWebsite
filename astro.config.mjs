@@ -17,7 +17,7 @@ export default defineConfig({
 				frame: 'terminal',
 			},
 			styleOverrides: {
-				codeFontSize: '0.875rem',
+				codeFontSize: '0.7rem',
 				codeFontFamily: "'JetBrains Mono', 'Fira Code', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
 				codeLineHeight: '1.7142857em',
 				borderRadius: '0.5rem',
