@@ -56,7 +56,7 @@ The ARM Cortex-M3 processor core communicates with internal and external periphe
   <img
     src="/tang-nano-4k-apb/architecture_topology.png"
     alt="Architecture Topology"
-    width="50%"
+    width="80%"
   />
   <figcaption><em>Figure 4 — Vendor IP Topology .</em></figcaption>
 </figure>
@@ -71,9 +71,9 @@ the ARM core acts as a manager who dictates instructions in a strict, formal lan
 The specific APB slave implemented in this project is a **register bank** a block of memory-mapped storage elements accessible by the ARM core via the soft ip APB master base address (`0x40002400`) which is chosen when creating the ip core, as seen below.
 <figure>
   <img
-    src="/tang-nano-4k-apb/apb_mater.png"
+    src="/tang-nano-4k-apb/apb_master.png"
     alt="Advanced Peripheral Bus Master"
-    width="100%"
+    width="80%"
   />
   <figcaption><em>Figure 5 — Vendor Advanced Peripheral Master Config/Init .</em></figcaption>
 </figure>
