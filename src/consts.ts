@@ -9,7 +9,6 @@ export const AUTHOR_DESCRIPTION = 'Firmware, systems, hardware, and security ent
 
 export const SOCIAL_LINKS = {
   github: 'https://github.com/martiniio',
-  twitter: 'https://twitter.com/yourusername',
-  linkedin: 'https://linkedin.com/in/yourusername',
+  linkedin: 'www.linkedin.com/in/stavros-martini-a61bb7311', //TODO: Replace with your actual LinkedIn URL
   email: 'stavrimartini@gmail.com'
 };
