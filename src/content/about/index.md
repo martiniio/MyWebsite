@@ -6,15 +6,15 @@ name: Stavros
 
 # About Me
 
-I'm an Electrical and Computer Engineer working on embedded systems, firmware, and digital design. I write C/C++ for microcontrollers, design state machines, develop RTL for FPGAs, and navigate the constraints of safety-critical environments.
+I'm an Electrical and Computer Engineer working on embedded systems, firmware, and digital design. I write code for microcontrollers, design state machines, develop RTL for FPGAs, and navigate the constraints of safety-critical environments.
 
 I believe in engineering with discipline. Every requirement must be traced, every edge case considered, and every line of code justified.
 
 ## What I'm Into
 
-- **Embedded C / C++** – STM32, ESP32, AVR
+- **Embedded Systems** - control systems, communication
 - **State Machines** – robust, predictable firmware design
-- **FPGA Development** – Verilog/VHDL, RTL simulation, synthesis
+- **FPGA Development** – Verilog/VHDL
 - **Safety-Critical Systems** – ISO 26262, IEC 61508
 - **Requirements Engineering** – capture, trace, validate
 - **Real-Time Systems** – FreeRTOS,Zephyr,QNX etc.

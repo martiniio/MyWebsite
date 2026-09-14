@@ -93,13 +93,17 @@ void DEAD_SAT(){
 
 The last line is intentional. Once the position error is down to a single encoder count, the motor is cut rather than left dithering across the deadzone boundary to chase the last count.
 
-## Performance specification
 
-Before designing the controller, a concrete specification was set for the closed loop response, evaluated on the linear model with the effect of sampling (the zero order hold) included.
+## Performance Specification
 
-Overshoot must be less than 7 percent. Peak time must be less than 100 ms.
+Before designing the controller, a concrete specification was set for the closed-loop response. The specification was evaluated on the linear model **with the effect of sampling (zero-order hold) included**.
 
-All later design decisions, including controller structure, gain values, sample time and discretization method, were checked against this specification.
+|  Requirement                      | Target     | Evaluation conditions                            |
+|-----------------------------------|------------|--------------------------------------------------|
+| Overshoot must be less than       | **7%**     | Closed-loop response, linear model, ZOH included |
+| Peak time must be less than       | **100 ms** | Closed-loop response, linear model, ZOH included |
+
+**Design verification:** All design decisions, including controller structure, gain values, sample time, and discretization method, must obey this specification.
 
 ## Controller design: P-DF then PI-DF
 
@@ -266,3 +270,11 @@ Discretization method. The Tustin method consistently outperformed Backward Eule
 Feedforward control. Adding a feedforward term derived from the analytical reference signal, layered on top of PI-DF as `U = PI term - DF term + FF term`, reduced tracking error (IAE) by about 74 percent on the triangle reference. This came with a practical limitation: feedforward requires either an exact analytical expression for the reference or a close approximation, and computing it through the full plant model requires higher order derivatives of the reference signal, which is sensitive to noise and becomes harder to manage as the derivative order increases.
 
 Overall, the exercise demonstrates a complete digital control workflow: identify a real plant from data, design a controller against an explicit specification, choose a discretization method with an understanding of its trade-offs, and validate all of it against real hardware rather than simulation alone. The gap observed between the linear model's prediction and the real system's measured performance is itself a useful result, since it illustrates why control designs are usually built with margin against model uncertainty rather than tuned exactly to a model's nominal prediction.
+
+
+
+## Lab video
+<video controls width="100%" preload="metadata">
+  <source src="/digital_control_prj/video/Result.mp4" type="video/mp4" />
+  Your browser does not support the video tag.
+</video>
