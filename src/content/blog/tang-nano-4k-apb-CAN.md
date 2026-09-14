@@ -581,7 +581,7 @@ Where it stands now is honest: it works on a two-node bench, broadly tested, wit
 
 ## Credits and references
 
-This project stands on work by others, and it would be wrong not to name it.
+This [project stored on github](https://github.com/martiniio/tang-nano-4k-apb-CAN) stands on work by others, and it would be wrong not to name it.
 
 - **CanLite**, the CAN controller core, by Brandon Gardner: [github.com/bggardner/can-lite-vhdl](https://github.com/bggardner/can-lite-vhdl). Licensed under the GNU LGPL v2.1. The core itself descends from the CAN protocol controller originally published on OpenCores, and I used it essentially unmodified as the protocol engine at the heart of the design.
 - **The Tang Nano 4K** board and its Gowin GW1NSR-4C FPGA, from Sipeed. Board documentation: [wiki.sipeed.com](https://wiki.sipeed.com/hardware/en/tang/Tang-Nano-4K/Nano-4K.html).
