@@ -1,6 +1,6 @@
 ---
 title: "Building a CAN Controller Into a Cortex-M3 SoC From Scratch"
-pubDate: 2026-07-09
+pubDate: 2026-09-014
 tags: [fpga, Can, vhdl, firmware]
 description: "Building a CAN bus controller into a Tang Nano 4K FPGA from the ground up, integrating an open-source core into a Cortex-M3 SoC, writing it's driver and then test it. "
 ---
@@ -593,41 +593,6 @@ This project stands on work by others, and it would be wrong not to name it.
 The CAN protocol itself was developed by Robert Bosch GmbH. Any mistakes in how I have described it, or in the design around the core, are my own.
 
 
-
-
-
-## SIMPLE PLAY EXAMPLE  (led toggle)
-By receiving frame with id =0x200 the led is toggled.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 ## The bug that hid in plain sight
 
 The requirement from the last section sounds easy: hold the outgoing frame still while the core transmits it. My first version got it wrong in a way that took a while to even see, because most of the time it worked.
@@ -645,3 +610,66 @@ That single change, a stable register between the queue and the core, is what tu
 
 Nearly every hard problem in this project lived in the same place: not inside CanLite, not inside my logic, but in the contract between them. The core worked. My FIFO worked. What went wrong was an assumption about how the two fit together, a signal I thought was stable that was not, a timing I read one way that the core meant another. The bug above is the sharpest example, but the pattern held throughout. When two correct pieces are joined, the interface between them is where the surprises hide, and reading that contract carefully, exactly, is most of the work.
 
+
+
+
+
+## A small extra: blinking over CAN
+
+Once the link works, it is fun to make it do something you can see. This little addition lets the Linux side set the LED's blink rate by sending a number over CAN: send 500 and the LED toggles every 500 ms, send 100 and it blinks faster, send 0 and it stops.
+
+The timing is done properly, with a hardware timer rather than a delay loop, so the rate is accurate. The trick is to run the timer at a fixed, known tick and count those ticks in software.
+
+```c
+volatile uint32_t blink_ms = 0;   /* blink period in ms, set over CAN */
+volatile uint32_t ms_count = 0;   /* ms elapsed since the last toggle  */
+
+/* Timer0 is configured to fire once every millisecond. */
+void TIMER0_Handler(void)
+{
+    if (TIMER_GetIRQStatus(TIMER0) != RESET) {
+        if (blink_ms != 0 && ++ms_count >= blink_ms) {
+            ms_count = 0;
+            led_toggle();
+        }
+        TIMER_ClearIRQ(TIMER0);
+    }
+}
+```
+
+Two small things carry the whole idea. First, the timer's reload value: the clock here is 54 MHz, so counting 54,000 cycles is exactly one millisecond. That is the tick. Second, the handler simply counts those milliseconds and toggles the LED when the count reaches whatever period the last CAN frame asked for. The main loop never does any timing itself; it just updates one number.
+
+```c
+/* 1 ms tick: 54,000,000 cycles/s x 0.001 s = 54,000 */
+TIMER0->RELOAD = 54000;
+TIMER0->VALUE  = 54000;
+```
+
+That reload value is worth a note, because it is the one number you cannot copy from an example written for a different board. The blink rate is only correct if it matches the actual clock. At 54 MHz it is 54,000; on a 27 MHz board it would be half that. Get the clock wrong and every blink is wrong with it.
+
+The rest is just the receive loop from before, reading the period out of the frame's first two data bytes:
+
+```c
+if (frame.id == 0x100u && frame.dlc >= 2) {
+    blink_ms = frame.data[0] | (frame.data[1] << 8);   /* little-endian ms */
+    ms_count = 0;
+}
+```
+
+From the Linux side, the whole thing is one command, sweeping from slow to fast:
+
+```sh
+cansend can0 100#E803    # 0x03E8 = 1000 ms, slow
+cansend can0 100#F401    # 0x01F4 = 500 ms
+cansend can0 100#6400    # 0x0064 = 100 ms, brisk
+cansend can0 100#0000    # stop
+```
+
+The value is little-endian, so 500 (0x01F4) is sent low byte first as `F4 01`. It is a small thing, but there is something satisfying about typing a number on a Linux box and watching a light on an FPGA change its rhythm in response, with every layer between them, the driver, the bridge, the CAN core, the bus, doing its part.
+## Lab video
+
+
+
+<video controls width="100%" preload="metadata">
+  <source src="/tang-nano-4k-apb-CAN/video/output.mp4" type="video/mp4" />
+</video>
