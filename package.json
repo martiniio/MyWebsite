@@ -7,7 +7,7 @@
   },
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build && pagefind --site dist --output-path dist/pagefind",
+    "build": "playwright install chromium && astro build && pagefind --site dist --output-path dist/pagefind --force-language zh-cn",
     "preview": "astro preview",
     "astro": "astro"
   },
@@ -28,7 +28,6 @@
     "katex": "^0.16.45",
     "marked": "^18.0.3",
     "pagefind": "^1.5.2",
-    "playwright": "^1.63.0",
     "rehype-autolink-headings": "^7.1.0",
     "rehype-components": "^0.3.0",
     "rehype-expressive-code": "^0.42.0",
@@ -42,5 +41,8 @@
     "sharp": "^0.35.5",
     "shiki": "^4.2.0",
     "unist-util-visit": "^5.1.0"
+  },
+  "devDependencies": {
+    "playwright": "^1.63.0"
   }
 }
