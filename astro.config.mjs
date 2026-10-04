@@ -48,7 +48,7 @@ export default defineConfig({
 	],
 	markdown: {
 		processor: unified({
-			rehypePlugins: [[rehypeMermaid, { strategy: 'inline-svg' }]],
+			rehypePlugins: [[rehypeMermaid, { strategy: 'pre-mermaid' }]],
 		}),
 		syntaxHighlight: { type: 'shiki', excludeLangs: ['mermaid', 'math'] },
 	},

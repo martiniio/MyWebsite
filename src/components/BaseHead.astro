@@ -46,6 +46,14 @@ const { title, description, image = FALLBACK_IMAGE, date } = Astro.props;
 
 <Font cssVariable="--font-code" preload />
 
+<script is:inline type="module">
+	import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+	mermaid.initialize({
+		startOnLoad: true,
+		theme: document.documentElement.classList.contains('dark') ? 'dark' : 'default',
+	});
+</script>
+
 <link rel="canonical" href={canonicalURL} />
 
 <title>{title}</title>
