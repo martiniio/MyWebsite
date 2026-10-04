@@ -13,7 +13,9 @@
 	--border-color: #E4E4E7;
 	--codeblock-bg: #F5F5F5;
 	--codeblock-topbar-bg: #E4E4E7;
-	--body-font-size: 14px;
+	--body-font-size: 17px;
+	--code-font: var(--font-code), 'JetBrains Mono', 'Fira Code', ui-monospace,
+		SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
 html.dark {
@@ -22,7 +24,7 @@ html.dark {
 	--accent-light: #FDBA74;
 	--text-primary: #FAFAFA;
 	--text-secondary: #D4D4D8;
-	--text-muted: #71717A;
+	--text-muted: #A1A1AA;
 	--text-faint: #52525B;
 	--bg-primary: #18181B;
 	--bg-secondary: #27272A;
@@ -52,7 +54,7 @@ body {
 	color: var(--text-secondary);
 	font-size: var(--body-font-size);
 	font-weight: 400;
-	line-height: 1.6;
+	line-height: 1.65;
 	transition: background-color 0.3s ease, color 0.3s ease;
 	word-wrap: break-word;
 	overflow-wrap: break-word;
@@ -115,4 +117,3 @@ hr {
 		padding: 2rem 1rem 3rem;
 	}
 }
-

@@ -1,15 +1,19 @@
 // @ts-check
 
 import sitemap from '@astrojs/sitemap';
+import mdx from '@astrojs/mdx';
 import expressiveCode from 'astro-expressive-code';
+import { pluginLineNumbers } from '@expressive-code/plugin-line-numbers';
 import { defineConfig, fontProviders } from 'astro/config';
-import rehypeWrapTables from './src/plugins/rehype-wrap-tables';
+import { unified } from '@astrojs/markdown-remark';
+import rehypeMermaid from 'rehype-mermaid';
 
 export default defineConfig({
-	site: 'https://simple.com',
+	site: 'https://martiniio.dev',
 	vite: {},
 	integrations: [
 		expressiveCode({
+			plugins: [pluginLineNumbers()],
 			themes: ['github-light', 'github-dark'],
 			defaultProps: {
 				wrap: true,
@@ -17,19 +21,20 @@ export default defineConfig({
 				frame: 'terminal',
 			},
 			styleOverrides: {
-				codeFontSize: '0.7rem',
-				codeFontFamily: "'JetBrains Mono', 'Fira Code', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
-				codeLineHeight: '1.7142857em',
+				codeFontSize: '0.9rem',
+				codeFontFamily:
+					"var(--font-code), 'JetBrains Mono', 'Fira Code', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+				codeLineHeight: '1.7em',
 				borderRadius: '0.5rem',
 				frameBorderWidth: '1px',
 				frameShadow: '0 2px 12px rgba(0, 0, 0, 0.1)',
-				containerPaddingBlock: '0.75rem',
+				containerPaddingBlock: '0.85rem',
 				containerPaddingInline: '1rem',
 				lineNumberMarginInline: '1rem',
 				lineNumberWidth: '2rem',
 			},
 			frames: {
-				showCopyButton: true,
+				showCopyToClipboardButton: true,
 				showLanguageBadge: true,
 			},
 			useDarkModeMediaQuery: false,
@@ -38,24 +43,21 @@ export default defineConfig({
 				return false;
 			},
 		}),
+		mdx(),
 		sitemap(),
 	],
 	markdown: {
-		rehypePlugins: [rehypeWrapTables],
-		syntaxHighlight: false,
+		processor: unified({
+			rehypePlugins: [[rehypeMermaid, { strategy: 'inline-svg' }]],
+		}),
+		syntaxHighlight: { type: 'shiki', excludeLangs: ['mermaid', 'math'] },
 	},
 	fonts: [
 		{
-			provider: fontProviders.local(),
-			name: 'Atkinson',
-			cssVariable: '--font-atkinson',
-			fallbacks: ['sans-serif'],
-			options: {
-				variants: [
-					{ src: ['./src/assets/fonts/atkinson-regular.woff'], weight: 400, style: 'normal', display: 'swap' },
-					{ src: ['./src/assets/fonts/atkinson-bold.woff'], weight: 700, style: 'normal', display: 'swap' },
-				],
-			},
+			provider: fontProviders.fontsource(),
+			name: 'Inconsolata',
+			cssVariable: '--font-code',
+			fallbacks: ['ui-monospace', 'monospace'],
 		},
 	],
 });

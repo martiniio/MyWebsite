@@ -234,7 +234,7 @@ const isDark = 'dark';
 						throw new Error('Pagefind not available');
 					}
 
-					const searchResult = await pagefindModule.search(query, { languages: ['en', 'zh-cn'] });
+					const searchResult = await pagefindModule.search(query);
 					
 					const seenUrls = new Set<string>();
 					const lowerQuery = query.toLowerCase();
