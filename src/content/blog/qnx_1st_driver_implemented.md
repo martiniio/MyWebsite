@@ -2,7 +2,7 @@
 title: "Writing a QNX Driver for a CNC Machine"
 pubDate: 2026-10-04
 tags: [embedded, opc-ua, QNX, Linux]
-description: "A QNX resource manager that exposes a CNC lathe as two files: /dev/cnc/plant for reading the latest machine state, /dev/cnc/methods for sending commands. Reads are answered from a cached snapshot; writes are queued and answered when the machine is done. C, QNX, OPC UA over WiFi."
+description: "A QNX resource manager exposing a CNC lathe as two files, talking to the machine over OPC UA. C, QNX, open62541."
 ---
 
 
@@ -18,11 +18,13 @@ This isn't a polished tutorial from someone who already knew the answers. I lear
 On one side sit control applications running on QNX. They know *what* they want to do: "what is the spindle doing", "change to tool 4", "stop the machine". On the other side sits a machine that speaks **OPC UA**, an open standard for industrial communication, published by the OPC Foundation and standardised as IEC 62541 ([OPC Foundation](https://jp.opcfoundation.org/wp-content/uploads/2014/03/OPC_UA_Brochure_US_2013_v2.pdf)). Chapter 2 explains the parts of it this project needs.
 
 The driver sits in between and **translates**. Applications see two ordinary files; the driver turns file operations into OPC UA requests and OPC UA answers back into file semantics:
+
 ```mermaid
 flowchart LR
     APP["application"] -- "read() / write()" --> DRV["QNX resource manager ( /dev/cnc/plant , /dev/cnc/methods )"]
     DRV -- "OPC UA (open62541)" --> SRV["OPC UA server (the machine)"]
 ```
+
 - **`/dev/cnc/plant`**: `read()` returns the latest state of the whole machine as one C struct: spindle, feed, tool, vibration, production counters and so on, all from the same reading.
 - **`/dev/cnc/methods`**: `write()` sends a command to the machine, such as an emergency stop or a tool change. It returns once the machine has executed it, or fails with a meaningful `errno`.
 
@@ -46,8 +48,10 @@ I split the work along the same lines as the system, one chapter each:
 
 1. **The plant**: a ready-made OPC UA server that simulates a CNC lathe, running on a Raspberry Pi. I chose an existing simulator on purpose, because the point of the exercise is the driver, not the simulation.
 2. **The topology**: how a Windows PC, a QNX virtual machine and the Pi are connected, and the networking detail that made QNX unable to reach the Pi at first.
-3. **The driver**: the interface, the threads and how they cooperate, and how commands are queued and answered without ever blocking the driver.
-4. **Results and future work**: measured latencies, the limitations I accepted on purpose, and what comes next.
+3. **The resource manager**: the interface, the four QNX layers, the threads and how they cooperate, and how commands are queued and answered without ever blocking the driver.
+4. **Using the driver**: what the interface looks like from an application, what a `read()` and a `write()` cost, and the send-receive-reply structure that makes the whole thing work.
+
+The source is on GitHub, listed at the end.
 
 
 
@@ -223,41 +227,52 @@ I expected this part to take five minutes. It didn't: my first attempt simply co
 | Raspberry Pi Zero 2 W | the plant: OPC UA server in Docker, port 4840 | X.X.X.X on the LAN (Wi-Fi) |
 
 ```mermaid
+%% UML deployment view
+%% «device» = node, «executionEnvironment» = hypervisor / container runtime, «component» = deployed software
 flowchart LR
-    A["application"]
-    subgraph RM["resource manager (QNX process)"]
+    subgraph HOST["«device» Windows host"]
         direction TB
-        subgraph TPL["thread pool"]
+        MOM["«component»<br/>Momentics IDE"]
+        NET["host network stack"]
+        subgraph VB["«executionEnvironment» VirtualBox"]
             direction TB
-            P1["pool thread #1"]
-            P2["pool thread #2"]
-            PN["… up to 8"]
+            HO["host-only network<br/>192.168.X.1"]
+            VNAT["NAT engine<br/>gateway 10.0.X.2"]
+            subgraph QNX["«device» QNX 8 VM"]
+                direction TB
+                DRV["«component»<br/>CNC driver<br/>OPC UA client"]
+                V0(["vtnet0 · host-only<br/>192.168.X.X"])
+                V1(["vtnet1 · NAT<br/>10.0.X.X"])
+            end
         end
-        SNAP@{ shape: bow-rect, label: "snapshot" }
-        Q@{ shape: h-cyl, label: "command queue" }
-        RD["read thread"]
-        WR["write thread"]
     end
-    S["OPC UA server"]
-
-    A -- "read()" --> P1
-    A -- "write()" --> P2
-    P1 -- "io_read: copy snapshot" --> SNAP
-    P2 -- "io_write: push (cmd, rcvid)" --> Q
-    Q -- "pop" --> WR
-    RD -- "publish" --> SNAP
-    RD -- "Read every READ_PERIOD<br/>(read session)" --> S
-    WR -- "Call<br/>(write session)" --> S
-    WR -- "MsgReply" --> A
-
-    classDef pool fill:#E1F5EE,stroke:#0F6E56,color:#04342C
-    classDef own  fill:#FAECE7,stroke:#993C1D,color:#4A1B0C
-    classDef data fill:#FAEEDA,stroke:#854F0B,color:#412402
-    classDef ext  fill:#F1F5F9,stroke:#334155,color:#0F172A
-    class P1,P2,PN pool
-    class RD,WR own
-    class SNAP,Q data
-    class A,S ext
+    subgraph PI["«device» Raspberry Pi Zero 2 W · X.X.X.X"]
+        direction TB
+        subgraph DOCKER["«executionEnvironment» Docker"]
+            SRV["«component»<br/>opcua-timeseries<br/>OPC UA server :4840"]
+        end
+    end
+ 
+    MOM -- "deploy / debug" --- HO
+    HO --- V0
+    DRV --> V1
+    V1 --> VNAT
+    VNAT --> NET
+    NET -- "«opc.tcp» LAN / Wi-Fi" --> SRV
+ 
+    classDef component fill:#FAEEDA,stroke:#854F0B,color:#412402
+    classDef tool      fill:#F1EFE8,stroke:#5F5E5A,color:#2C2C2A
+    classDef iface     fill:#E6F1FB,stroke:#185FA5,color:#042C53
+    classDef network   fill:#FFFFFF,stroke:#888780,color:#2C2C2A,stroke-dasharray:4 3
+    class DRV,SRV component
+    class MOM tool
+    class V0,V1 iface
+    class HO,VNAT,NET network
+    style HOST   fill:#EEEDFE,stroke:#534AB7,color:#26215C
+    style QNX    fill:#EEEDFE,stroke:#534AB7,color:#26215C
+    style PI     fill:#EEEDFE,stroke:#534AB7,color:#26215C
+    style VB     fill:#E1F5EE,stroke:#0F6E56,color:#04342C
+    style DOCKER fill:#E1F5EE,stroke:#0F6E56,color:#04342C
 ```
 
 Colours: purple = devices, teal = execution environments, amber = the OPC UA client and server, blue = the QNX VM's network interfaces, dashed = virtual networks.
@@ -311,10 +326,6 @@ If the QNX VM is recreated, for example with `mkqnximage`, check that the NAT ad
 
 
 
-
-
-
-
 # 4. The Resource Manager
 
 This is the chapter I rewrote the most, because the driver itself changed the most. My first version had one path per machine part and a [`devctl()`](https://www.qnx.com/developers/docs/8.0/com.qnx.doc.neutrino.lib_ref/topic/d/devctl.html) command for each. Then I had a version where command threads blocked the whole driver. Then one where two threads shared one OPC UA client, which simply didn't work. What's described here is where I ended up, and along the way I'll say why the earlier attempts were dropped.
@@ -332,7 +343,7 @@ flowchart LR
     class DRV mid
 ```
 
-The code is four files:
+The driver is four files. (The interactive tool `cnc_read.c` from chapter 5 is separate, and not part of the driver itself.)
 
 | File | Side | Contains |
 |---|---|---|
@@ -715,7 +726,7 @@ sequenceDiagram
     Note over P: back to dispatch_block()
 ```
 
-A read costs one message round trip plus a 432-byte copy, with no network and no waiting on the machine. Measured with `cnc_read -b` over 2 million reads in the VM: **2.9 µs minimum, 8 µs average, 84 µs at the 99th percentile** (chapter 5 has the details).
+A read costs one message round trip plus a 432-byte copy, with no network and no waiting on the machine. Measured with `cnc_read -b 2000000` in the VM: **2.9 µs minimum, 8 µs average, 84 µs at the 99th percentile**.
 
 ## Writes: queue now, reply later
 
@@ -901,7 +912,7 @@ The order matters. If the sessions were closed before the write thread finished,
 
 ## Dropping root
 
-Registering paths under `/dev` is the only step that needs root. With `-U uid:gid` the driver drops to that user right after `resmgr_attach()`, before starting any other thread.
+Registering paths under `/dev` is the only step that needs root. With `-U uid:gid` the driver drops to that user right after `resmgr_attach()`, before starting any other thread. Note that this also drops the ability to raise the read thread and write thread to SCHED_FIFO, so their `pthread_setschedparam()` calls will fail and log a `WARN` — the code is still correct, they just run at inherited priorities.
 
 ## Running it
 
@@ -930,6 +941,9 @@ printf("%.0f rpm, tool %d\n", p.spindle.speed_rpm, (int)p.tool.number);
 ```
 
 There are no request codes and no protocol to parse: one fixed struct, defined in the header. The whole contract is one header containing two paths, the structs and the `errno` meanings.
+
+
+
 
 # 5. Using the Driver
 
@@ -965,6 +979,7 @@ The result is a single `cnc_plant_t` holding everything — spindle, feed, tool,
 Keeping the file open and calling `read()` again returns 0 bytes, which is end of file. To poll, the application uses `pread()` at offset 0: it always returns the latest snapshot without moving the file position.
 
 ![Screenshot](/qnx_1st_driver_implemented/snip1.PNG)
+
 ## Writing
 
 A command is different. `write()` sends one method to the machine, and the application waits until the machine answers.
@@ -997,7 +1012,7 @@ We pushed emergency stop.
 
 ![Screenshot](/qnx_1st_driver_implemented/snip3.PNG)
 
-The 13.2 ms here is the same measurement. It is not the time the driver spent doing work — most of it is the machine's own response time over the network. The driver's share is small: queueing the command, waking the write thread, and on the way back, calling `MsgReply()` with the `rcvid` that was saved in the queue. Everything in between is the OPC UA server on the other end
+The 13.2 ms here is the same measurement. The two commands took 16.8 ms and 13.2 ms respectively — both dominated by the machine's own response time, not by the driver. The driver's share is small: queueing the command, waking the write thread, and on the way back, calling `MsgReply()` with the `rcvid` that was saved in the queue. Everything in between is the OPC UA server on the other end.
 
 ## Conclusion
 
@@ -1033,14 +1048,28 @@ A future version could ship with a policy that names the three or four applicati
 
 ### Closing
 
-The machine is slow. The applications are fast. QNX gave us a way to keep them apart without inventing a protocol, writing a scheduler, or hand-rolling a queue. The driver is a few hundred lines of QNX-specific code plus glue. Everything else is POSIX or open62541.
+The machine is slow. The applications are fast. QNX gave us a way to keep them apart without inventing a protocol, writing a scheduler, or hand-rolling a queue. The driver is around 800 lines of C, most of it QNX-specific, plus glue. Everything else is POSIX or open62541.
 
 Porting to Linux would be possible, but it would need `io_uring` or `epoll`, a shim for `_RESMGR_NOREPLY`, and its own client-blocking semantics. That is a chapter of its own.
 
 QNX did not make this problem easy. It made it small.
 
 
+
+
+## The repository
+
+Source, build instructions and the full README are at:
+
+**https://github.com/martiniio/my-cnc-qnx-driver**
+
+The driver itself is `MyDriver.c` and `opcua_client.c`. `cnc_read.c` is the interactive tool used throughout this article. The open62541 amalgamation is  committed — but the README also explains how to obtain it.
+
+
+
+
 ## References
+
 - QNX SDP 8.0, *Layers in a resource manager*: https://www.qnx.com/developers/docs/8.0/com.qnx.doc.neutrino.resmgr/topic/skeleton_RESMGR_layers.html
 - QNX SDP 8.0, *The thread pool layer*: http://get.qnx.com/developers/docs/qnxcar2/topic/com.qnx.doc.neutrino.resmgr/topic/skeleton_threadpool_layer.html
 - QNX SDP 8.0, *The resmgr layer*: http://get.qnx.com/developers/docs/qnxcar2/topic/com.qnx.doc.neutrino.resmgr/topic/skeleton_resmgr_layer.html
