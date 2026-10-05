@@ -1,5 +1,5 @@
 ---
-title: "Writing a QNX Driver for a CNC Machine"
+title: "Writing a QNX Resource Manager for a CNC Machine"
 pubDate: 2026-10-04
 tags: [embedded, opc-ua, QNX, Linux]
 description: "A QNX resource manager exposing a CNC lathe as two files, talking to the machine over OPC UA. C, QNX, open62541."
