@@ -9,9 +9,12 @@ const blog = defineCollection({
     updatedDate: z.coerce.date().optional(),
     tags: z.array(z.string()).optional(),
     description: z.string().optional(),
+    // social card — absolute path including the base, e.g.
+    // /tesla_roadster_control_analysis/og/landing-a-flying-car.png
+    ogImage: z.string().optional(),
+    ogImageAlt: z.string().optional(),
   }),
 });
-
 
 const about = defineCollection({
   loader: glob({ base: './src/content/about', pattern: '**/*.{md,mdx}' }),
@@ -20,4 +23,4 @@ const about = defineCollection({
   }),
 });
 
-export const collections = { blog , about };
+export const collections = { blog, about };

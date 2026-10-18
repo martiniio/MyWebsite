@@ -3,6 +3,9 @@ title: "How Do You Land a Flying Car? A young Control Engineer's Look at Tesla's
 pubDate: 2026-10-18
 tags: [control-theory, system-modelling, mpc, control-problem]
 description: "Tesla's Roadster flew on a single tank of compressed air. A control engineer's take on how it might be done, from modeling the car to landing it softly with MPC."
+
+ogImage: "/tesla_roadster_control_analysis/og/image.png"
+ogImageAlt: "How do you land a flying car?'"
 ---
 
 <div style="display:flex; justify-content:center;">

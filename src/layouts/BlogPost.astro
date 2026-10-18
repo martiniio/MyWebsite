@@ -10,7 +10,16 @@ type Props = CollectionEntry<'blog'>['data'] & {
   headings: MarkdownHeading[];
 };
 
-const { title, description, pubDate, updatedDate, headings, tags } = Astro.props;
+const {
+  title,
+  description,
+  pubDate,
+  updatedDate,
+  headings,
+  tags,
+  ogImage,
+  ogImageAlt,
+} = Astro.props;
 
 import '../styles/custom.css';
 
@@ -18,7 +27,14 @@ import '../styles/custom.css';
 
 <html lang="en">
   <head>
-    <BaseHead title={title} description={description} date={pubDate} />
+    <BaseHead
+      title={title}
+      description={description}
+      date={pubDate}
+      image={ogImage}
+      imageAlt={ogImageAlt}
+      type="article"
+    />
   </head>
   <body>
     <Header />
@@ -347,7 +363,7 @@ import '../styles/custom.css';
       .prose th[align='right'],
       .prose td[align='right'] {
         text-align: right;
-}
+      }
 
       /* HR */
       .prose hr {
