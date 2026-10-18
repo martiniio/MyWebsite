@@ -1,0 +1,104 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 500" font-family="'CMU Serif','Latin Modern Roman','Computer Modern','Times New Roman',Times,serif">
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9.5" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+      <path d="M0,1 L10,5 L0,9 Z" fill="#000"/>
+    </marker>
+    <style>
+      .box   { fill:#fff; stroke:#000; stroke-width:1.5; }
+      .focus { fill:#fff; stroke:#000; stroke-width:2.2; }
+      .ctrl  { fill:none; stroke:#000; stroke-width:1; stroke-dasharray:7 5; }
+      .line  { fill:none; stroke:#000; stroke-width:1.4; marker-end:url(#arr); }
+      .name  { fill:#000; font-size:17px; text-anchor:middle; }
+      .big   { fill:#000; font-size:22px; text-anchor:middle; }
+      .math  { fill:#000; font-size:17px; text-anchor:middle; font-style:italic; }
+      .sig   { fill:#000; font-size:16px; text-anchor:middle; font-style:italic; }
+      .note  { fill:#000; font-size:13px; text-anchor:middle; }
+      .cap   { fill:#000; font-size:15px; font-style:italic; }
+      .up    { font-style:normal; }
+    </style>
+  </defs>
+
+  <rect x="0" y="0" width="1180" height="500" fill="#fff"/>
+
+  <!-- Target -->
+  <rect class="box" x="20" y="100" width="130" height="70"/>
+  <text class="name" x="85" y="128">Target</text>
+  <text class="note" x="85" y="150">upright,</text>
+  <text class="note" x="85" y="164">soft touchdown</text>
+
+  <!-- Target -> Optimization -->
+  <path class="line" d="M150,135 L220,135"/>
+  <text class="sig" x="185" y="125">x<tspan font-size="11" dy="4" class="up">ref</tspan></text>
+
+  <!-- MPC controller boundary -->
+  <rect class="ctrl" x="200" y="25" width="500" height="225"/>
+  <text class="cap" x="214" y="46">MPC controller</text>
+
+  <!-- Optimization -->
+  <rect class="focus" x="220" y="62" width="170" height="150"/>
+  <text class="big" x="305" y="105">Optimization</text>
+  <text class="math" x="305" y="142"><tspan class="up">min</tspan> J<tspan font-size="12" dy="4" class="up">cost</tspan></text>
+  <text class="note" x="305" y="170">over horizon <tspan font-style="italic">N</tspan></text>
+
+  <!-- Model -->
+  <rect class="focus" x="510" y="62" width="170" height="150"/>
+  <text class="big" x="595" y="105">Model</text>
+  <text class="math" x="595" y="142">ẋ = f(x, u)</text>
+  <text class="note" x="595" y="170">14 states, 10 inputs</text>
+
+  <!-- Optimization <-> Model -->
+  <path class="line" d="M390,92 L510,92"/>
+  <text class="sig" x="450" y="83">u<tspan font-size="11" dy="4" class="up">0</tspan><tspan dy="-4">, …, u</tspan><tspan font-size="11" dy="4">N−</tspan><tspan font-size="11" class="up">1</tspan></text>
+
+  <path class="line" d="M510,137 L390,137"/>
+  <text class="sig" x="450" y="128">x<tspan font-size="11" dy="4" class="up">1</tspan><tspan dy="-4">, …, x</tspan><tspan font-size="11" dy="4">N</tspan></text>
+
+  <path class="line" d="M510,182 L390,182"/>
+  <text class="sig" x="450" y="173">g(x, u) ≤ <tspan class="up">0</tspan></text>
+
+  <!-- MPC -> Valves -->
+  <path class="line" d="M680,135 L770,135"/>
+  <text class="sig" x="728" y="125">u</text>
+
+  <!-- Valves -->
+  <rect class="box" x="770" y="100" width="110" height="70"/>
+  <text class="name" x="825" y="130">Valves</text>
+  <text class="math" x="825" y="154">u<tspan font-size="12" dy="4">i</tspan><tspan dy="-4"> ∈ </tspan><tspan class="up">[0, 1]</tspan></text>
+
+  <!-- Valves -> Car -->
+  <path class="line" d="M880,135 L940,135"/>
+  <text class="sig" x="910" y="125">F<tspan font-size="11" dy="4">B</tspan><tspan dy="-4">, τ</tspan><tspan font-size="11" dy="4">B</tspan></text>
+
+  <!-- Car -->
+  <rect class="focus" x="940" y="60" width="215" height="150"/>
+  <text class="big" x="1047" y="118">Car</text>
+  <text class="note" x="1047" y="146">rigid body</text>
+  <text class="math" x="1047" y="172">m ≈ <tspan class="up">1800 kg</tspan></text>
+
+  <!-- Gas tank (cylinder) under the valves -->
+  <path class="box" d="M765,305 L765,385 A60,15 0 0 0 885,385 L885,305"/>
+  <ellipse class="box" cx="825" cy="305" rx="60" ry="15"/>
+  <text class="name" x="825" y="345">Gas tank</text>
+  <text class="math" x="825" y="370">m<tspan font-size="12" dy="4">u</tspan><tspan dy="-4">, P, T</tspan></text>
+
+  <!-- Tank -> Valves -->
+  <path class="line" d="M825,290 L825,170"/>
+  <text class="sig" x="835" y="236" style="text-anchor:start">P</text>
+
+  <!-- Sensors -->
+  <rect class="box" x="490" y="415" width="140" height="60"/>
+  <text class="name" x="560" y="440">Sensors</text>
+  <text class="math" x="560" y="463">y = h(x)</text>
+
+  <!-- Car -> Sensors -->
+  <path class="line" d="M1047,210 L1047,445 L630,445"/>
+  <text class="sig" x="1060" y="330" style="text-anchor:start">x</text>
+
+  <!-- Tank -> Sensors -->
+  <path class="line" d="M765,350 L595,350 L595,415"/>
+  <text class="sig" x="680" y="341">P, T</text>
+
+  <!-- Sensors -> Optimization -->
+  <path class="line" d="M490,445 L305,445 L305,212"/>
+  <text class="sig" x="398" y="436">y</text>
+</svg>

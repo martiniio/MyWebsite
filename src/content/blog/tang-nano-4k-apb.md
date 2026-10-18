@@ -271,6 +271,9 @@ The complete system architecture consists of three key components:
 </figure>
 The top-level SoC module (`soc_top.vhd`) instantiates the Cortex-M3, the PLL for clock generation, and the APB slave:
 
+<details>
+<summary>soc_top.vhd</summary>
+
 ```vhdl
     -- soc_top.vhd
     LIBRARY ieee;
@@ -360,6 +363,7 @@ The top-level SoC module (`soc_top.vhd`) instantiates the Cortex-M3, the PLL for
 
     end architecture;
 ```
+</details>
 
 ### APB Slave RTL Design
 
@@ -374,6 +378,8 @@ The APB slave register bank is implemented entirely in VHDL, written from scratc
 
 #### Entity Declaration
 
+<details>
+<summary>apb_slave_regbank(interface)</summary>
 
 ```vhdl
 entity apb_slave_regbank is
@@ -403,6 +409,7 @@ entity apb_slave_regbank is
     );
 end entity;
 ```
+</details>
 
 #### Address Decoding
 

@@ -7,6 +7,10 @@ import { pluginLineNumbers } from '@expressive-code/plugin-line-numbers';
 import { defineConfig, fontProviders } from 'astro/config';
 import { unified } from '@astrojs/markdown-remark';
 import rehypeMermaid from 'rehype-mermaid';
+import rehypeCallouts from 'rehype-callouts';
+
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
 
 export default defineConfig({
 	site: 'https://martiniio.dev',
@@ -48,7 +52,14 @@ export default defineConfig({
 	],
 	markdown: {
 		processor: unified({
-			rehypePlugins: [[rehypeMermaid, { strategy: 'pre-mermaid' }]],
+			remarkPlugins: [remarkMath],
+			rehypePlugins: [
+				[rehypeMermaid, { strategy: 'pre-mermaid' }],
+				rehypeKatex,
+				rehypeCallouts, 
+			],
+			gfm: true,
+
 		}),
 		syntaxHighlight: { type: 'shiki', excludeLangs: ['mermaid', 'math'] },
 	},

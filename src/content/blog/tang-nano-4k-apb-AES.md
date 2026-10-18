@@ -98,6 +98,9 @@ Three more quirks made the bridge non-optional rather than a nice-to-have wrappe
  
 The bridge's job, stated plainly: take five APB registers and a two-bit status word on one side, and produce sixteen individually-timed byte transactions with a mandatory reset cycle between every use, on the other. That asymmetry is the whole design problem.
 
+<details>
+<summary>aes_bridge.vhd</summary>
+
 ```vhdl
 -- aes_bridge.vhd
 -- Author S.Martini
@@ -344,6 +347,8 @@ begin
 
 end architecture;
 ```
+
+</details>
  
 | | APB / software side | Core side |
 |---|---|---|

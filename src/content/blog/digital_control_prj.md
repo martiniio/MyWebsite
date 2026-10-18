@@ -274,7 +274,7 @@ Overall, the exercise demonstrates a complete digital control workflow: identify
 
 
 ## Lab video
-<video controls width="100%" preload="metadata">
-  <source src="/digital_control_prj/video/Result.mp4" type="video/mp4" />
-  Your browser does not support the video tag.
+<video controls playsinline preload="metadata" width="100%"
+       poster="/digital_control_prj/video/Result-poster.jpg">
+  <source src="/digital_control_prj/video/Result_web.mp4" type="video/mp4" />
 </video>

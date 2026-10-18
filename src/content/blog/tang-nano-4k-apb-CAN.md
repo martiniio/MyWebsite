@@ -198,6 +198,9 @@ What it gives you is the entire protocol engine from the previous section, packa
 
 The cleanest way to see what "talk to it" means is to look at the core's actual interface. Here is the entity declaration, which is simply the list of wires going in and out.
 
+<details>
+<summary>CanLite.vhd(Interface)</summary>
+
 ```vhdl
 entity CanLite is
     generic (
@@ -298,6 +301,9 @@ Read it left to right. The Cortex-M3 talks to the register bank over APB, exactl
 
 With that picture in place, the interface makes sense on sight. Here is the bridge's entity, and it is worth putting next to CanLite's from earlier, because the contrast is the entire point.
 
+<details>
+<summary>CanLite_Bridge.vhd(interface)</summary>
+
 ```vhdl
 library ieee;
     use ieee.std_logic_1164.all;
@@ -350,7 +356,7 @@ entity CanLite_Bridge is
     );
 end entity CanLite_Bridge;
 ```
-
+</details>
 
 <figure>
   <img
@@ -670,6 +676,7 @@ The value is little-endian, so 500 (0x01F4) is sent low byte first as `F4 01`. I
 
 
 
-<video controls width="100%" preload="metadata">
-  <source src="/tang-nano-4k-apb-CAN/video/output.mp4" type="video/mp4" />
+<video controls playsinline preload="metadata" width="100%"
+       poster="/tang-nano-4k-apb-CAN/video/output-poster.jpg">
+  <source src="/tang-nano-4k-apb-CAN/video/output_web.mp4" type="video/mp4" />
 </video>
