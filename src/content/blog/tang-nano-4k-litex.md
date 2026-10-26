@@ -106,7 +106,7 @@ LiteX wraps it as the SoC's CPU. What sits where:
 flowchart LR
     subgraph CHIP["GW1NSR-4C chip"]
         subgraph EMCU["EMCU (hard silicon)"]
-            M3["Cortex-M3<br/>+ NVIC"] --> BM["bus matrix"]
+            M3["Cortex-M3<br/>+ NVIC"] --> BM["AHBLite Bus"]
         end
         FL["32 KB user flash<br/>(hard block)"]
         subgraph FPGA["FPGA fabric (LiteX)"]
