@@ -121,6 +121,12 @@ flowchart LR
     end
 ```
 
+<figure style="margin: 0;">
+  <img src="./../../../public/tang-nano-4k-litex/CortexM3_addressMap.png" alt="The Cortex-M3 address map" style="width: 100%;" />
+  <figcaption>The Cortex-M3 address map</figcaption>
+</figure>
+
+
 - The firmware runs from the chip's **32 KB flash**.
 - Its **8 KB SRAM** is built from 4 of the FPGA's block RAMs.
 - Everything we build in the FPGA is reached through **one 64 KB window at `0xA000_0000`**.
