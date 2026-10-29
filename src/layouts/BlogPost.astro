@@ -22,7 +22,6 @@ const {
 } = Astro.props;
 
 import '../styles/custom.css';
-
 ---
 
 <html lang="en">
@@ -87,14 +86,33 @@ import '../styles/custom.css';
       )}
     </div>
 
+    <div class="image-modal" id="image-modal"><img alt="" /></div>
+
     <Footer />
 
     <style>
       /* ── Layout ── */
       .blog-container {
-        max-width: 940px;
-        margin: 0 auto;
+        max-width: 1048px;                                /* 1000 px of text + 2 × 24 px padding */
+        margin: 0 auto 0 max(0px, calc(50% - 574px));    /* text runs from 50% − 550px to 50% + 450px,
+                                                            20 px left of the table of contents */
         padding: 3rem 1.5rem 5rem;
+        position: relative;
+      }
+
+      /* in case a global main { width: … } rule narrows the column */
+      .blog-container main {
+        width: auto;
+        max-width: none;
+        margin: 0;
+        padding: 0;
+      }
+
+      /* table of contents hidden below 1280 px: centre the column instead */
+      @media (max-width: 1279px) {
+        .blog-container {
+          margin: 0 auto;
+        }
       }
 
       /* ── Article Header ── */
@@ -386,10 +404,10 @@ import '../styles/custom.css';
       .sidebar {
         display: none;
         position: fixed;
-        left: calc(50% + 420px);
+        left: calc(50% + 470px);   /* ← CHANGED: was calc(50% + 520px); moved 50px left */
         top: 6.5rem;
         bottom: 10rem;
-        width: 200px;
+        width: 220px;              /* ← CHANGED: was 200px; a bit wider so its scrollbar sits further from the page edge */
       }
 
       @media (min-width: 1280px) {
@@ -458,6 +476,34 @@ import '../styles/custom.css';
         border-color: var(--accent);
       }
 
+      /* ── Image zoom ── */
+      :global(.prose img) {
+        cursor: zoom-in;
+      }
+
+      .image-modal {
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 1000;
+        background: rgba(0, 0, 0, 0.9);
+        justify-content: center;
+        align-items: center;
+        cursor: zoom-out;
+      }
+
+      .image-modal.show {
+        display: flex;
+      }
+
+      .image-modal img {
+        max-width: 96vw;
+        max-height: 94vh;
+        object-fit: contain;
+        border-radius: 6px;
+        background: white;
+      }
+
       /* ── Mobile ── */
       @media (max-width: 720px) {
         .blog-container {
@@ -517,6 +563,28 @@ import '../styles/custom.css';
 
         backBtn.addEventListener('click', () => {
           window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+      }
+
+      // click a figure to see it large; click again or press Esc to close
+      const modal = document.getElementById('image-modal');
+      const modalImg = modal?.querySelector('img');
+      if (modal && modalImg) {
+        document.querySelectorAll('.prose img').forEach((img) => {
+          img.addEventListener('click', () => {
+            modalImg.src = img.currentSrc || img.src;
+            modalImg.alt = img.alt;
+            modal.classList.add('show');
+            document.body.style.overflow = 'hidden';
+          });
+        });
+        const close = () => {
+          modal.classList.remove('show');
+          document.body.style.overflow = '';
+        };
+        modal.addEventListener('click', close);
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape') close();
         });
       }
     </script>
